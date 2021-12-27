@@ -11,21 +11,33 @@ var recipes = JSON.parse(data);
 app.get('/recipes', alldata)
 
 function alldata(request, response) {
-    response.send(recipes);
+
+    var recipeCount = Object.keys(recipes["recipes"]).length;
+    var nameArray = [];
+
+    for(i = 0; i < recipeCount; i++){
+        nameArray.push(recipes["recipes"][i].name);
+    }
+
+    response.send({"recipeNames":nameArray});
 }
 
 app.get('/recipes/:recipe/', searchRecipe);
 
-//this is the problem, need to know how to address the index values added by default to the indexes under recipes
-function searchRecipe(request, response){
-    var name = request.params.element;
-    var recipeCount = Object.keys(recipes["recipes"]).length;
-    console.log(recipes["recipes"].id[0]);
 
-    if(recipes["recipes"]){
-        var reply = recipes[name];
-    } else {
-        var reply = {status: "not found"}
+function searchRecipe(request, response){
+    var name = request.params.recipe;
+    var recipeCount = Object.keys(recipes["recipes"]).length;
+
+    for(i = 0; i < recipeCount; i++){
+        if(recipes["recipes"][i].name===name){
+            var ingredients = recipes["recipes"][i].ingredients;
+            var stepCount = Object.keys(recipes["recipes"][i].instructions).length;
+            var reply = {"details":{"ingredients":ingredients,"numSteps":stepCount}}
+            break;
+        } else {
+            var reply = {}
+        }
     }
 
     response.send(reply);
